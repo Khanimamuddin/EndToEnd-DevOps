@@ -5,39 +5,42 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                echo 'Fetching source code from GitHub'
                 checkout scm
             }
         }
 
         stage('Build Application') {
             steps {
-                echo 'Building Java application using Maven'
-                bat 'mvn clean compile'
+                bat 'mvn clean package'
             }
         }
 
-        stage('Run Automated Tests') {
+        stage('Run Tests') {
             steps {
-                echo 'Executing JUnit test cases'
                 bat 'mvn test'
             }
         }
 
-        stage('Build Verification') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Application build and testing completed'
+                bat 'docker build -t end-to-end-devops .'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                bat 'docker run --rm end-to-end-devops'
             }
         }
     }
 
     post {
         success {
-            echo 'CI Pipeline Executed Successfully!'
+            echo 'End-to-End DevOps Pipeline Completed Successfully!'
         }
 
         failure {
-            echo 'CI Pipeline Failed!'
+            echo 'Pipeline Failed!'
         }
     }
 }
